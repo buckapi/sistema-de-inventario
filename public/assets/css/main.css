@@ -41,7 +41,7 @@
     --heading-six: 0.9375rem;
   /* Font Size End */
   
-    /* --main-h: 219;
+     --main-h: 219;
     --main-s: 94%;
     --main-l: 61%;
     --main: var(--main-h) var(--main-s) var(--main-l);
@@ -49,21 +49,9 @@
     --main-two-h: 166;
     --main-two-s: 68%;
     --main-two-l: 48%;
-    --main-two: var(--main-two-h) var(--main-two-s) var(--main-two-l);  */
+    --main-two: var(--main-two-h) var(--main-two-s) var(--main-two-l);  
     
-    --main-h: 350;    /* Un tono rosa suave */
-    --main-s: 80%;    /* Saturación moderada para mantener el aspecto pastel */
-    --main-l: 65%;    /* Alto valor de luminosidad para el efecto pastel */
-    --main: var(--main-h) var(--main-s) var(--main-l);
- 
-    --main-two-h: 270; /* Tono de morado */
-    --main-two-s: 40%;  /* Baja saturación para suavizarlo */
-    --main-two-l: 58%;  /* Alta luminosidad para un color suave */
-    --main-two: var(--main-two-h) var(--main-two-s) var(--main-two-l);
- 
- 
-
-
+    
   /* White Color */
     --white: 0 0% 100%;
     --black: 220 33% 9%;

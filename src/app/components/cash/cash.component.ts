@@ -278,7 +278,6 @@ procesarPago() {
     return;
   }
 
-  // Add confirmation dialog
   Swal.fire({
     title: '¿Está seguro de procesar la venta?',
     text: `Total a pagar: ₡${this.total.toFixed(2)}`,
