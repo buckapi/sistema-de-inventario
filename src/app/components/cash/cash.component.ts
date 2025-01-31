@@ -234,12 +234,36 @@ export class CashComponent {
       hour12: false // Para formato 24 horas
     });
   } 
-  procesarVenta() {
+  /* procesarVenta() {
     console.log('Procesando venta...');
     console.log('Productos seleccionados:', this.productosSeleccionados);
     console.log('Customer:', this.customer);
     console.log('Total:', this.total);
-  }
+  } */
+    procesarVenta() {
+      console.log('Procesando venta...');
+      console.log('Productos seleccionados:', this.productosSeleccionados);
+      console.log('Customer:', this.customer);
+      console.log('Total:', this.total);
+    
+      // Verificar si hay suficiente stock para cada producto
+      for (let producto of this.productosSeleccionados) {
+        const productoEnInventario = this.productos.find(p => p.id === producto.idProducto);
+        if (productoEnInventario && productoEnInventario.unity < producto.cantidad) {
+          Swal.fire({
+            title: 'Error',
+            text: `No hay suficiente stock para el producto ${producto.nombre}`,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          });
+          return; // Detener el proceso si hay falta de stock
+        }
+      }
+      
+      // Si todo está en orden, continuar con el pago
+      this.procesarPago();
+    }
+    
 
   finalizarVenta() {
     console.log('Finalizando venta...');
@@ -267,7 +291,7 @@ export class CashComponent {
 private calculateTotalUnits(): number {
   return this.productosSeleccionados.reduce((total, producto) => total + producto.cantidad, 0);
 }
-procesarPago() {
+/* procesarPago() {
   if (!this.metodoPago || !this.customer) {
     Swal.fire({
       title: 'Error',
@@ -331,8 +355,84 @@ procesarPago() {
       );
     }
   });
-}
+} */
+  procesarPago() {
+    if (!this.metodoPago || !this.customer) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Por favor complete todos los campos requeridos',
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      });
+      return;
+    }
   
+    Swal.fire({
+      title: '¿Está seguro de procesar la venta?',
+      text: `Total a pagar: ₡${this.total.toFixed(2)}`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, procesar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const venta = {
+          customer: this.customer,
+          paymentMethod: this.metodoPago,
+          products: this.productosSeleccionados,
+          total: this.total,
+          idUser: this.currentUser.id,
+          unity: this.calculateTotalUnits(),
+          subTotal: this.subtotal.toString(),
+          statusVenta: "completed",
+          descuento: "0",
+          metodoPago: this.metodoPago,
+          date: new Date().toISOString(),
+          hora: this.horaActual,
+          idProduct: JSON.stringify(this.productosSeleccionados),
+        };
+  
+        this.dataApiService.saveVenta(venta).subscribe(
+          (response) => {
+            // Aquí actualizamos el stock de los productos vendidos
+            this.productosSeleccionados.forEach(producto => {
+              const productoEnInventario = this.productos.find(p => p.id === producto.idProducto);
+              if (productoEnInventario) {
+                productoEnInventario.unity -= producto.cantidad; // Restar la cantidad vendida
+                // Llamamos al servicio para actualizar el stock
+                this.realtimeProducts.updateProductStock(productoEnInventario);
+              }
+            });
+  
+            Swal.fire({
+              title: '¡Venta exitosa!',
+              text: 'La venta ha sido procesada correctamente.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              this.resetearVenta();
+              this.irAPaso(1);
+            });
+          },
+          (error) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Hubo un problema al procesar la venta. Por favor, intente nuevamente.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+            console.error('Error:', error);
+          }
+        );
+      }
+    });
+  }
+  
+  
+   
 private resetearVenta() {
   this.productosSeleccionados = [];
   this.customer = '';
@@ -382,7 +482,7 @@ openSaleDetailsModal(venta: any) {
   }
 }
 calculateTotalStock(): number {
-  return this.products.reduce((total, product) => total + (product.quantity || 0), 0);
+  return this.products.reduce((total, product) => total + (product.unity || 0), 0);
 }
 
 }

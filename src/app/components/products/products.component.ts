@@ -135,7 +135,8 @@ export class ProductsComponent {
               code: parseInt(this.productForm.get('code')?.value),
               idCategoria: this.productForm.get('idCategoria')?.value,
               collection: 'productsInventory',
-              file: fileResponse['file']
+              file: fileResponse['file'],
+              stock: this.productForm.get('unity')?.value
             };
 
             // Continue with product creation

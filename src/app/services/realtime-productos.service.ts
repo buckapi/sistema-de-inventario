@@ -56,4 +56,41 @@ export class RealtimeProductsService implements OnDestroy {
     // Desuscribirse cuando el servicio se destruye
     this.pb.collection('productsInventory').unsubscribe('*');
   }
+  // Nuevo método para actualizar el stock de un producto
+  /* async updateProductStock(producto: any): Promise<void> {
+    try {
+      // Se hace un "update" del producto en la colección, especificando el ID del producto
+      await this.pb.collection('productsInventory').update(producto.id, {
+        unity: producto.unity,
+      });
+
+      console.log(`Producto ${producto.name} actualizado correctamente`);
+
+      // Después de actualizar, podemos actualizar la lista de productos en el frontend
+      this.updateProductsList();
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      throw new Error('Error al actualizar el producto');
+    }
+  } */
+  // Método para actualizar el stock de un producto
+  async updateProductStock(producto: any): Promise<void> {
+    try {
+      // Actualizamos solo la cantidad del producto (campo 'unity')
+      const updatedData = {
+        unity: producto.unity, // Usamos la nueva cantidad después de la venta
+      };
+
+      // Realizamos la actualización del producto en la base de datos
+      const updatedRecord = await this.pb.collection('productsInventory').update(producto.id, updatedData);
+
+      console.log(`Producto ${producto.name} actualizado correctamente con nueva cantidad: ${producto.unity}`);
+
+      // Después de actualizar, volvemos a obtener la lista de productos actualizada
+      this.updateProductsList();
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      throw new Error('Error al actualizar el producto');
+    }
+  }
 }
